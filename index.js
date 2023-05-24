@@ -15,7 +15,8 @@ program.parse(process.argv);
 
 let counter = 0;
 const mind = Math.ceil(Math.random() * 10);
-// const logFile = program.opts().file;
+
+const logFile = program.opts().file;
 const isValid = (val) => {
     if (!Number.isNaN(val) && val > 0 && val <= 10) return true;
 
@@ -23,6 +24,16 @@ const isValid = (val) => {
     if (val < 1 || val > 10) console.log('Number should be between 1 and 10'.yellow);
     return false;
 }
+
+const logger = async (msg) => {
+    try {
+        await fs.appendFile(logFile, `${msg}\n`)
+        console.log(`Successfully saved game results to the log file:  ${logFile}`.bgGreen)
+    } catch (err) {
+        console.log(`Something went wrong ${err.message}`.red)
+    }
+};
+
 const game = () => {
     rl.question('Please enter any whole number between 1 and 10:\n', (val) => {
         const number = +val;
@@ -35,8 +46,9 @@ const game = () => {
             console.log('Oh no! Try again'.red);
             return game();
         }
-
-        console.log(`Congratulations! You guessed in ${counter} steps!`.green);
+        const winningMessage = `Congratulations! You guessed in ${counter} steps!`
+        console.log(winningMessage.green);
+        logger(`${new Date().toLocaleString('uk-UA')}: ${winningMessage}`);
         rl.close();
     })
 }
